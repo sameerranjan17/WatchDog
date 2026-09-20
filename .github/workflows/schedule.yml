@@ -1,0 +1,37 @@
+name: WatchDog Update Monitor
+
+on:
+  schedule:
+    # Ye script ko har 1 ghante me run karega.
+    # Agar 4 ghante me ek baar chalana hai to '0 */4 * * *' likho.
+    - cron: '0 * * * *'
+  
+  workflow_dispatch:
+    # Ye line hume GitHub par manually button daba kar run karne ka option deti hai.
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Node version
+
+      - name: Install dependencies
+        run: npm install
+
+      # Puppeteer ko Linux par chalne ke liye kuch extra libraries chahiye hoti hain
+      - name: Install Puppeteer Dependencies
+        run: sudo apt-get install -y libgbm-dev
+
+      - name: Run the script
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+        run: node index.js
